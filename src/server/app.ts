@@ -2,7 +2,6 @@
 import _ = require("lodash");
 import async = require("async");
 import express = require('express');
-var swagger = require("swagger-node-express");
 import domain = require('domain');
 import mongoose = require('mongoose');
 
@@ -42,7 +41,6 @@ console.log('   ');
 console.log('   ');
 
 require('../config/express')(app);
-require('../config/swagger')(app);
 require('../config/routes')(app);
 
 // imports are finished. now begin starting up the app
@@ -80,9 +78,6 @@ function startServer(callback) {
     serverDomain.run(function() {
         server = require('http').createServer(app);
     });
-
-    // Must be called after all routes.
-    swagger.configure('docs', "0.1");
 
     // Start server
     server.listen('8080', '127.0.0.1', function() {

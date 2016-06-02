@@ -25,9 +25,7 @@
         "src/api/v1/product/ProductResponse.ts",
         "src/config/express.ts",
         "src/config/routes.ts",
-        "src/config/swagger.ts",
         "src/server/app.ts",
-        "src/util/swagger/routes.ts",
         "typings/tsd.d.ts"
     ],
     "atom": {

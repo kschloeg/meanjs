@@ -1,16 +1,20 @@
 'use strict';
 import _ = require('lodash');
 import request = require('request-promise');
+import ProductController = require('../api/v1/product/ProductController');
 
 module.exports = function(app) {
 
-    // Insert routes below
-    require('../api/v1/product/ProductController.js');
-
-    // Give Amazon load-balancer health checks something to check against
+    // Give AWS load-balancer health checks something to check against
     app.get('/healthcheck', function(req, res) {
         res.sendStatus(200);
     });
+
+app.get('/hello', function(req, res) {
+                  res.send({'ping': 'pong'});
+                });
+    app.get('/v1/product/:id', ProductController.getProductById);
+    app.post('/v1/product/', ProductController.createProduct);
 
     // All undefined asset or api routes should return a 404
     app.route('/:url(api|auth|components|app|assets)/*')
