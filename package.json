@@ -28,7 +28,7 @@
         "lodash": "^4.6.1",
         "mongoose": "^4.4.19",
         "nodemon": "^1.8.1",
-        "productts": "^0.8.5",
+        "productts": "^0.8.6",
         "request": "^2.67.0",
         "request-ip": "1.1.4",
         "request-promise": "^2.0.0",
@@ -79,8 +79,6 @@
         "run-sequence": "^1.1.5",
         "should": "^8.1.1",
         "supertest": "^1.1.0",
-        "swagger-node-express": "2.0",
-        "swagger-ui-lite": "^2.0.22-11",
         "tslint": "^3.10.1"
     }
 }
