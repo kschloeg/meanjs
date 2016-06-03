@@ -5,72 +5,84 @@ import express = require('express');
 import domain = require('domain');
 import mongoose = require('mongoose');
 
-// var config = require('kas-config');
+// Here is where we would import config parameters and environmental variables
 // config.addEnvironmentValues(require('./config/environment'));
 // config.addEnvironmentValues(require('./config/environment/' + process.env.NODE_ENV + ".js"));
+
+// Instead we will fake it with an inline JSON config object
+var config = {
+    server: {
+        port: '8080',
+        host: '127.0.0.1'
+    },
+    mongo: {
+        setup: {
+            server: {
+                poolSize: 1
+            },
+            db: {
+                safe: true
+            }
+        },
+        debug: false,
+        uri: 'mongodb://localhost/kirknet'
+    }
+}
 
 require('source-map-support').install();
 
 var app = express();
-
 var server = null;
 
-var mongo = {
-    options: {
-        server: {
-            poolSize: 1
-        },
-        db: {
-            safe: true
-        }
-    },
-    debug: false,
-    uri: 'mongodb://localhost:27017'
-};
-
-// Set default node environment to development
-console.log('   KIRK 1: ' + JSON.stringify(mongo));
-console.log('   KIRK ENV: ' + JSON.stringify(process.env));
-
+// Set node environment to development
 process.env.NODE_ENV = 'development';
-console.log('   ');
-console.log('   KIRK KEYS: ' + JSON.stringify(_.keys(process)));
-console.log('   KIRK CONFIG: ' + JSON.stringify(process.config));
-console.log('   KIRK ENV: ' + JSON.stringify(process.env));
-console.log('   ');
-console.log('   ');
 
 require('../config/express')(app);
 require('../config/routes')(app);
 
 // imports are finished. now begin starting up the app
 async.auto({
-    mongo: function(cb) { initMongo(mongo, cb); },
-    mongoConfig: ['mongo', function(cb) { initMongoConfig(cb); }],
-    server: ['mongoConfig', function(cb) { startServer(cb); }]
+    mongo: (cb) => startMongo(config.mongo, cb),
+    server: ['mongo', (cb) => startServer(config.server, cb)]
 }, function(err) {
-    if (err) {
-        console.error(err);
-    }
-});
+        if (err) {
+            console.error(err);
+        }
+    });
 
-function initMongo(mongo, callback) {
-    console.log('  KIRK connecting to mongo: ' + mongo.uri + ", " + JSON.stringify(mongo.options));
-    mongoose.connect(mongo.uri, mongo.options, callback);
-}
+function startMongo(mongoOptions, callback) {
+    mongoose.connection.on('connected', function() {
+        console.log('Mongoose connection opened -> ' + mongoOptions.uri);
+    });
 
-function initMongoConfig(callback) {
-    if (mongo.debug) {
+    mongoose.connection.on('error', function(err) {
+        console.log('Mongoose connection error: ' + err);
+    });
+
+    mongoose.connection.on('disconnected', function() {
+        console.log('Mongoose connection disconnected');
+    });
+
+    // If the Node process ends, close the Mongoose connection
+    process.on('SIGINT', function() {
+        mongoose.connection.close(function() {
+            console.log('Mongoose connection disconnected through app termination');
+            process.exit(0);
+        });
+    });
+
+    if (mongoOptions.debug) {
         mongoose.set('debug', function(coll, method, query, doc, options) {
             query = query || {};
             options = options || {};
             console.log('Mongoose: ' + coll + '.' + method + ' ' + JSON.stringify(query) + ' ' + JSON.stringify(options));
         });
     }
-    process.nextTick(callback);
+
+    mongoose.connect(mongoOptions.uri, mongoOptions.setup, callback);
 }
 
-function startServer(callback) {
+function startServer(serverOptions, callback) {
     var serverDomain = domain.create();
     serverDomain.on('error', function(err) {
         server.close(); // stop taking new requests
@@ -80,14 +92,8 @@ function startServer(callback) {
     });
 
     // Start server
-    server.listen('8080', '127.0.0.1', function() {
-        console.log('Startup Server: mode=' + JSON.stringify(app.path));
-        console.log('   ');
-        console.log('   KIRK APP KEYS: ' + JSON.stringify(_.keys(app)));
-        console.log('   KIRK CONFIG: ' + JSON.stringify(process.config));
-        console.log('   KIRK ENV: ' + JSON.stringify(process.env));
-        console.log('   ');
-        console.log('   ');
+    server.listen(serverOptions.port, serverOptions.host, function() {
+        console.log('Startup Server -> ' + serverOptions.host + ":" + serverOptions.port);
     });
 
     process.nextTick(callback);
