@@ -5,6 +5,7 @@ import http_status = require('http-status');
 
 import {ProductManager, ProductInterface, Product, ProductStatus} from 'productts';
 
+import ExternalProductManager = require('./ExternalProductManager');
 import ProductResponse = require('./ProductResponse');
 import Permissions = require('../../permissions/Permissions');
 
@@ -24,17 +25,20 @@ class ProductController {
         product_data.gid = req.params.id;
 
         async.auto({
+            external: (cb) => ExternalProductManager.findById(id, cb),
             permissions: (cb) => Permissions.canCreate(product_data, cb),
             product: (cb) => ProductManager.findById(id, { include_inactive: true }, cb),
-            create: ['permissions', 'product', (cb, results) => {
+            create: ['permissions', 'product', 'external', (cb, results) => {
                 if (results.product) {
                     var error: any = new Error("Conflict");
                     error.status = http_status.CONFLICT;
                     return cb(error, null);
                 }
+                // Cache the external data here JFK
+                product_data.name = product_data.name || ProductResponse.getDescriptionFromExternalResponse(results.external);
                 ProductManager.create(product_data, cb);
             }],
-            response: ['create', (cb, results) => cb(null, ProductResponse.formatProductResponse(results.create))]
+            response: ['create', 'external', (cb, results) => cb(null, ProductResponse.formatProductResponse(results.create, results.external))]
         }, (err, results: any) => {
             console.log("    KIRK " + JSON.stringify(results.create));
             console.log("    KIRK " + JSON.stringify(results.response));
@@ -55,11 +59,13 @@ class ProductController {
         var include_inactive = req.query.include_inactive;
 
         async.auto({
+            external: (cb) => ExternalProductManager.findById(id, cb),
             product: (cb) => ProductManager.findById(id, { include_inactive: include_inactive }, cb),
             permissions: ['product', (cb, results) => Permissions.canView(results.product, cb)],
             // hydrate: ['permissions', (cb, results) => ProductHydrator.hydrateProduct(results.product, cb)],
-            response: ['permissions', (cb, results) => cb(null, ProductResponse.formatProductResponse(results.product))]
+            response: ['permissions', 'external', (cb, results) => cb(null, ProductResponse.formatProductResponse(results.product, results.external))]
         }, (err, results: any) => {
+            console.log("    KIRK " + JSON.stringify(err));
             console.log("    KIRK " + JSON.stringify(id));
             console.log("    KIRK " + JSON.stringify(results.product));
             console.log("    KIRK " + JSON.stringify(results.response));
@@ -69,7 +75,7 @@ class ProductController {
             }
 
             if (!results.product) {
-              return res.status(http_status.NOT_FOUND).send({});
+                return res.status(http_status.NOT_FOUND).send({});
             }
 
             return res.json(results.response);
@@ -86,14 +92,14 @@ class ProductController {
 
         async.auto({
             product: (cb) => ProductManager.findById(id, { include_inactive: true }, cb),
-            permissions: (cb, results) => Permissions.canEdit(results.product, cb),
-            update: ['product', 'permissions', (cb, results) => {
-              if (!results.product) {
-                  var error: any = new Error("Not Found");
-                  error.status = http_status.NOT_FOUND;
-                  return cb(error, null);
-              }
-              ProductManager.update(results.product, edits, cb);
+            permissions: ['product', (cb, results) => Permissions.canEdit(results.product, cb)],
+            update: ['permissions', (cb, results) => {
+                if (!results.product) {
+                    var error: any = new Error("Not Found");
+                    error.status = http_status.NOT_FOUND;
+                    return cb(error, null);
+                }
+                ProductManager.update(results.product, edits, cb);
             }]
         }, (err, results: any) => {
             console.log("    KIRK " + JSON.stringify(id));

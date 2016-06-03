@@ -30,7 +30,7 @@ var paths = {
     clean: [
         'build/*'
     ],
-    test_files: 'src/*/**/*.spec.js'
+    test_files: 'build/api/v1/**/*.spec.js'
 };
 
 // remove all owned directories but only owned files in common directories
