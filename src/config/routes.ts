@@ -10,8 +10,8 @@ module.exports = function(app) {
         res.sendStatus(200);
     });
 
-    app.post('/v1/product/', ProductController.create);
     app.get('/v1/product/:id', ProductController.findById);
+    app.post('/v1/product/:id', ProductController.create);
     app.put('/v1/product/:id', ProductController.update);
 
     // All undefined asset or api routes should return a 404
