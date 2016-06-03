@@ -10,11 +10,9 @@ class ProductResponse {
 
         var response:any = {
             api_version: "v1",
-            id: product.id,
+            id: product.gid, // Note: id is set to gid
             name: product.name,
-            price: options && options.hide_price ? null : product.price,
-            create_date: product.create_date,
-            status: product.status
+            current_price: options && options.hide_price ? null : product.current_price
         };
 
         return response;
