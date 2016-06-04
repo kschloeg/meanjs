@@ -105,7 +105,7 @@ gulp.task('serve', ['build'], function() {
         });
 });
 
-gulp.task('test', function(cb) {
+gulp.task('test', ['build'], function(cb) {
     runSequence('test:run', cb);
 });
 

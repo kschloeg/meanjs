@@ -17,8 +17,8 @@ class ProductController {
         console.log("  KIRK create " + JSON.stringify(req.params));
         var id = req.params.id;
         if (Number.isNaN(+id)) {
-            console.warn("Non-number product ID sent to create: " + id);
-            return res.status(http_status.BAD_REQUEST).send({});
+            console.log("Non-number product ID sent to create: " + id);
+            return res.status(http_status.BAD_REQUEST).send(null);
         }
 
         var product_data: ProductInterface = new Product(<ProductInterface>req.body);
@@ -43,8 +43,8 @@ class ProductController {
             console.log("    KIRK " + JSON.stringify(results.create));
             console.log("    KIRK " + JSON.stringify(results.response));
             if (err) {
-                console.warn(err);
-                return res.status(err.status || http_status.INTERNAL_SERVER_ERROR).send({});
+                console.log(err);
+                return res.status(err.status || http_status.INTERNAL_SERVER_ERROR).send(null);
             }
             return res.json(results.response);
         });
@@ -71,11 +71,11 @@ class ProductController {
             console.log("    KIRK " + JSON.stringify(results.response));
             if (err) {
                 console.warn(err);
-                return res.status(err.status || http_status.NOT_FOUND).send({});
+                return res.status(err.status || http_status.NOT_FOUND).send(null);
             }
 
             if (!results.product) {
-                return res.status(http_status.NOT_FOUND).send({});
+                return res.status(http_status.NOT_FOUND).send(null);
             }
 
             return res.json(results.response);
@@ -88,6 +88,10 @@ class ProductController {
     public static update(req: express.Request, res: express.Response) {
         console.log("  KIRK update " + JSON.stringify(req.body));
         var id = req.params.id;
+        if (Number.isNaN(+id)) {
+          console.log("Non-number product ID sent to update: " + id);
+            return res.status(http_status.NOT_FOUND).send(null);
+        }
         var edits: {} = req.body;
 
         async.auto({
@@ -106,10 +110,10 @@ class ProductController {
             console.log("    KIRK " + JSON.stringify(results.product));
             console.log("    KIRK " + JSON.stringify(results.response));
             if (err) {
-                console.warn(err.status || err);
-                return res.status(err.status || http_status.INTERNAL_SERVER_ERROR).send({});
+                console.log(err.status || err);
+                return res.status(err.status || http_status.INTERNAL_SERVER_ERROR).send(null);
             }
-            return res.json({});
+            return res.json(null);
         });
     }
 }
