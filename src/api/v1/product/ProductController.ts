@@ -14,10 +14,9 @@ class ProductController {
     //     method: "POST",
     //     body: { name: false, current_price: false, status: false }
     public static create(req: express.Request, res: express.Response) {
-        console.log("  KIRK create " + JSON.stringify(req.params));
         var id = req.params.id;
         if (Number.isNaN(+id)) {
-            console.log("Non-number product ID sent to create: " + id);
+            console.warn("Non-number product ID sent to create: " + id);
             return res.status(http_status.BAD_REQUEST).send(null);
         }
 
@@ -40,10 +39,8 @@ class ProductController {
             }],
             response: ['create', 'external', (cb, results) => cb(null, ProductResponse.formatProductResponse(results.create, results.external))]
         }, (err, results: any) => {
-            console.log("    KIRK " + JSON.stringify(results.create));
-            console.log("    KIRK " + JSON.stringify(results.response));
             if (err) {
-                console.log(err);
+                console.warn(err);
                 return res.status(err.status || http_status.INTERNAL_SERVER_ERROR).send(null);
             }
             return res.json(results.response);
@@ -54,7 +51,6 @@ class ProductController {
     //     method: "GET",
     //     query: { include_inactive: false }
     public static findById(req: express.Request, res: express.Response) {
-        console.log("  KIRK findById " + JSON.stringify(req.params));
         var id = req.params.id;
         var include_inactive = req.query.include_inactive;
 
@@ -65,10 +61,6 @@ class ProductController {
             // hydrate: ['permissions', (cb, results) => ProductHydrator.hydrateProduct(results.product, cb)],
             response: ['permissions', 'external', (cb, results) => cb(null, ProductResponse.formatProductResponse(results.product, results.external))]
         }, (err, results: any) => {
-            console.log("    KIRK " + JSON.stringify(err));
-            console.log("    KIRK " + JSON.stringify(id));
-            console.log("    KIRK " + JSON.stringify(results.product));
-            console.log("    KIRK " + JSON.stringify(results.response));
             if (err) {
                 console.warn(err);
                 return res.status(err.status || http_status.NOT_FOUND).send(null);
@@ -86,10 +78,9 @@ class ProductController {
     //     method: "PUT",
     //     body: { name: false, current_price: false, status: false }
     public static update(req: express.Request, res: express.Response) {
-        console.log("  KIRK update " + JSON.stringify(req.body));
         var id = req.params.id;
         if (Number.isNaN(+id)) {
-          console.log("Non-number product ID sent to update: " + id);
+          console.warn("Non-number product ID sent to update: " + id);
             return res.status(http_status.NOT_FOUND).send(null);
         }
         var edits: {} = req.body;
@@ -106,11 +97,8 @@ class ProductController {
                 ProductManager.update(results.product, edits, cb);
             }]
         }, (err, results: any) => {
-            console.log("    KIRK " + JSON.stringify(id));
-            console.log("    KIRK " + JSON.stringify(results.product));
-            console.log("    KIRK " + JSON.stringify(results.response));
             if (err) {
-                console.log(err.status || err);
+                console.warn(err);
                 return res.status(err.status || http_status.INTERNAL_SERVER_ERROR).send(null);
             }
             return res.json(null);

@@ -46,27 +46,27 @@ async.auto({
     server: ['mongo', (cb) => startServer(config.server, cb)]
 }, function(err) {
         if (err) {
-            console.error(err);
+            console.warn(err);
         }
     });
 
 function startMongo(mongoOptions, callback) {
     mongoose.connection.on('connected', function() {
-        console.log('Mongoose connection opened -> ' + mongoOptions.uri);
+        console.warn('Mongoose connection opened -> ' + mongoOptions.uri);
     });
 
     mongoose.connection.on('error', function(err) {
-        console.log('Mongoose connection error: ' + err);
+        console.warn('Mongoose connection error: ' + err);
     });
 
     mongoose.connection.on('disconnected', function() {
-        console.log('Mongoose connection disconnected');
+        console.warn('Mongoose connection disconnected');
     });
 
     // If the Node process ends, close the Mongoose connection
     process.on('SIGINT', function() {
         mongoose.connection.close(function() {
-            console.log('Mongoose connection disconnected through app termination');
+            console.warn('Mongoose connection disconnected through app termination');
             process.exit(0);
         });
     });
@@ -75,7 +75,7 @@ function startMongo(mongoOptions, callback) {
         mongoose.set('debug', function(coll, method, query, doc, options) {
             query = query || {};
             options = options || {};
-            console.log('Mongoose: ' + coll + '.' + method + ' ' + JSON.stringify(query) + ' ' + JSON.stringify(options));
+            console.warn('Mongoose: ' + coll + '.' + method + ' ' + JSON.stringify(query) + ' ' + JSON.stringify(options));
         });
     }
 
@@ -93,7 +93,7 @@ function startServer(serverOptions, callback) {
 
     // Start server
     server.listen(serverOptions.port, serverOptions.host, function() {
-        console.log('Startup Server -> ' + serverOptions.host + ":" + serverOptions.port);
+        console.warn('Startup Server -> ' + serverOptions.host + ":" + serverOptions.port);
     });
 
     process.nextTick(callback);
