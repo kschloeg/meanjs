@@ -1,5 +1,5 @@
 {
-    "name": "meanjs",
+    "name": "meants",
     "version": "0.8.0",
     "description": "Starter server using node.js, TypeScript, Mongoose, and MongoDB",
     "engines": {
@@ -9,7 +9,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/kschloeg/meanjs"
+        "url": "https://github.com/kschloeg/meants"
     },
     "main": "build/app/app.js",
     "typings": "build/app/",
