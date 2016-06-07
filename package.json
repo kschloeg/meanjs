@@ -15,7 +15,7 @@
     "typings": "build/app/",
     "scripts": {
         "test": "NODE_ENV=test gulp test",
-        "start": "node build/app/app.js",
+        "start": "node build/server/app.js",
         "postinstall": "gulp install"
     },
     "private": false,
