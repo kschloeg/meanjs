@@ -29,7 +29,7 @@
         "lodash": "^4.6.1",
         "mongoose": "^4.4.19",
         "nodemon": "^1.8.1",
-        "productts": "^0.8.9",
+        "productts": "^0.9.0",
         "request": "^2.67.0",
         "request-ip": "1.1.4",
         "request-promise": "^2.0.0",

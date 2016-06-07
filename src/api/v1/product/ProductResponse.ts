@@ -21,7 +21,6 @@ class ProductResponse {
 
     public static getDescriptionFromExternalResponse(externalResponse:any):string {
       var items = <{}[]>_.get(externalResponse, 'product_composite_response.items');
-      console.log("   KIRK items: " + JSON.stringify(items));
 
       if (!items || !items.length) {
         console.warn("Bad response from external resource");
