@@ -1,5 +1,5 @@
 {
-    "name": "meants",
+    "name": "@kschloeg/meants",
     "version": "0.8.0",
     "description": "Starter server using node.js, TypeScript, Mongoose, and MongoDB",
     "engines": {
